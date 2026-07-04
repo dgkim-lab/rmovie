@@ -48,6 +48,11 @@ The application is at <http://localhost:3000> and Jaeger is at
 <http://localhost:16686>. Set `ENABLE_DEBUG_ENDPOINTS=true`, sign in, and call
 `GET /api/debug/random-error` to generate observable success and error spans.
 Kiali requires Kubernetes and Istio and is therefore configured in GitOps.
+Failed debug and random-item API responses include an `errorId` and `traceId`.
+In Jaeger, search for the trace ID directly or use the span tag
+`rmovie.error.id=<errorId>`; error spans also carry `error=true`, `error.type`,
+and an exception event. Local Compose uses `OTEL_TRACES_SAMPLER=always_on` so
+deliberate errors are not removed by head sampling.
 
 ## Runtime endpoints
 

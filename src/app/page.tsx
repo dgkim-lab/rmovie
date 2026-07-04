@@ -6,6 +6,7 @@ import { AccountButton, SignOutButton } from "@/components/session-button";
 import { getAccountUrl, getRedirectDelayMs } from "@/lib/config";
 import { getRandomSheetItem } from "@/lib/google-sheets";
 import type { RandomItem } from "@/lib/random-item";
+import { getErrorTraceContext } from "@/lib/telemetry";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,10 @@ export default async function Home() {
   try {
     item = await getRandomSheetItem();
   } catch (error) {
-    console.error("Unable to select a random item", error);
+    console.error("Unable to select a random item", {
+      ...getErrorTraceContext(error),
+      error,
+    });
   }
 
   const content = item

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRandomSheetItem } from "@/lib/google-sheets";
+import { getErrorTraceContext } from "@/lib/telemetry";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,11 @@ export async function GET() {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (error) {
-    console.error("Unable to select a random item", error);
-    return NextResponse.json({ error: "Unable to load a random item" }, { status: 500 });
+    const trace = getErrorTraceContext(error);
+    console.error("Unable to select a random item", { ...trace, error });
+    return NextResponse.json(
+      { error: "Unable to load a random item", errorId: trace?.errorId, traceId: trace?.traceId },
+      { status: 500 },
+    );
   }
 }

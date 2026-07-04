@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getDebugConfig } from "@/lib/config";
-import { withSpan } from "@/lib/telemetry";
+import { getErrorTraceContext, withSpan } from "@/lib/telemetry";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,15 @@ export async function GET() {
       return NextResponse.json({ status: "ok", deliberate: true });
     }, { "rmovie.debug.error_rate": errorRate });
   } catch (error) {
-    console.error("Generated deliberate debug error", error);
-    return NextResponse.json({ error: "Deliberate observability test error" }, { status: 500 });
+    const trace = getErrorTraceContext(error);
+    console.error("Generated deliberate debug error", { ...trace, error });
+    return NextResponse.json(
+      {
+        error: "Deliberate observability test error",
+        errorId: trace?.errorId,
+        traceId: trace?.traceId,
+      },
+      { status: 500 },
+    );
   }
 }
