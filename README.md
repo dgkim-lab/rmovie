@@ -7,6 +7,11 @@ Signing out clears both the local Auth.js session and the configured provider
 session. Keycloak exposes its account console automatically; Cognito account
 management requires an optional application-owned `AUTH_ACCOUNT_URL`.
 
+Each suggestion and accepted redirect is recorded in PostgreSQL through
+Prisma. Records include provider-qualified user identity and Google Sheet
+source metadata. Users can view their latest activity at `/activity`, delete
+individual rows, or soft-delete their complete visible history.
+
 ## Local development
 
 Requirements: Node.js 22+, npm, a Google service account, and an OIDC client.

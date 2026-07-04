@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { RandomItemCard } from "@/components/random-item-card";
 import { AccountButton, SignOutButton } from "@/components/session-button";
+import { recordSuggestion } from "@/lib/activity-log";
 import { getAccountUrl, getRedirectDelayMs } from "@/lib/config";
 import { getRandomSheetItem } from "@/lib/google-sheets";
 import type { RandomItem } from "@/lib/random-item";
@@ -16,8 +17,17 @@ export default async function Home() {
   const accountUrl = getAccountUrl();
 
   let item: RandomItem | null = null;
+  let suggestionId: string | undefined;
   try {
     item = await getRandomSheetItem();
+    try {
+      suggestionId = (await recordSuggestion(session, item)).id;
+    } catch (error) {
+      console.error("Unable to record movie suggestion", {
+        ...getErrorTraceContext(error),
+        error,
+      });
+    }
   } catch (error) {
     console.error("Unable to select a random item", {
       ...getErrorTraceContext(error),
@@ -26,7 +36,7 @@ export default async function Home() {
   }
 
   const content = item
-    ? <RandomItemCard delayMs={getRedirectDelayMs()} item={item} />
+    ? <RandomItemCard delayMs={getRedirectDelayMs()} item={item} suggestionId={suggestionId} />
     : <Alert severity="error">A random item could not be loaded. Try again later.</Alert>;
 
   return (
@@ -35,6 +45,7 @@ export default async function Home() {
         <Box sx={{ alignItems: "center", display: "flex", justifyContent: "space-between", width: "100%" }}>
           <Typography sx={{ fontWeight: 800 }} variant="h5">rmovie</Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
+            <AccountButton href="/activity" label="Activity" />
             {accountUrl && <AccountButton href={accountUrl} />}
             <SignOutButton />
           </Box>

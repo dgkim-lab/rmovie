@@ -17,6 +17,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   trustHost: true,
   callbacks: {
+    session({ session, token }) {
+      if (token.sub) session.user.id = token.sub;
+      return session;
+    },
     redirect({ url, baseUrl }) {
       if (url.startsWith(`${baseUrl}/`)) return url;
       if (url === getFederatedLogoutUrl()) return url;

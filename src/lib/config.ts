@@ -68,6 +68,10 @@ export function getSheetConfig() {
   };
 }
 
+export function getDatabaseUrl() {
+  return required("DATABASE_URL");
+}
+
 export function getRedirectDelayMs() {
   return numberInRange("REDIRECT_DELAY_MS", 4000, 0, 60_000);
 }
@@ -82,6 +86,7 @@ export function getDebugConfig() {
 export function validateRuntimeConfig() {
   getAuthConfig();
   getSheetConfig();
+  getDatabaseUrl();
   getRedirectDelayMs();
   getDebugConfig();
 }

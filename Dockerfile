@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM node:22-alpine AS dependencies
 WORKDIR /app
+COPY prisma ./prisma
 COPY package.json package-lock.json ./
 RUN npm ci
 
@@ -15,6 +16,12 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
     AUTH_URL=http://localhost:3000 \
     GOOGLE_SHEETS_SPREADSHEET_ID=build
 RUN npm run build
+
+FROM dependencies AS migrator
+COPY prisma.config.ts ./
+COPY prisma ./prisma
+ENV NODE_ENV=production
+CMD ["npm", "run", "db:deploy"]
 
 FROM node:22-alpine AS runner
 WORKDIR /app

@@ -18,6 +18,6 @@ export function SignOutButton() {
   );
 }
 
-export function AccountButton({ href }: { href: string }) {
-  return <Button color="inherit" href={href} size="small">Manage account</Button>;
+export function AccountButton({ href, label = "Manage account" }: { href: string; label?: string }) {
+  return <Button color="inherit" href={href} size="small">{label}</Button>;
 }

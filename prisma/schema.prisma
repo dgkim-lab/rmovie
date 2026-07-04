@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SuggestionStatus {
+  SUGGESTED
+  ACCEPTED
+}
+
+model MovieSuggestion {
+  id           String           @id @default(uuid()) @db.Uuid
+  userSubject  String
+  authProvider String
+  userEmail    String?
+  sheetId      String
+  sheetRange   String
+  movieName    String
+  movieUrl     String
+  status       SuggestionStatus @default(SUGGESTED)
+  suggestedAt  DateTime         @default(now()) @db.Timestamptz(3)
+  acceptedAt   DateTime?        @db.Timestamptz(3)
+  traceId      String?
+  acceptedTraceId String?
+  deletedAt    DateTime?        @db.Timestamptz(3)
+
+  @@index([userSubject, suggestedAt])
+  @@index([status, suggestedAt])
+  @@index([userSubject, deletedAt, suggestedAt])
+  @@map("movie_suggestions")
+}
