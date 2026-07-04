@@ -44,3 +44,25 @@ it as a health probe.
 
 Each application release must hand off its immutable image reference and note
 changes to environment variables, callbacks, probes, or telemetry.
+
+## GitHub dispatch
+
+After publishing the `main` image, the application workflow sends an
+`image-published` repository dispatch to the GitOps repository:
+
+```json
+{
+  "app": "rmovie",
+  "image": "ghcr.io/dgkim-lab/rmovie",
+  "tag": "sha-<full-commit-sha>",
+  "environment": "dev"
+}
+```
+
+Configure these application-repository Actions settings:
+
+- Variable `GITOPS_REPOSITORY`: target in `owner/repository` form.
+- Optional variable `DEPLOY_ENVIRONMENT`: defaults to `dev`.
+- Secret `GITOPS_REPO_TOKEN`: fine-grained token with access to dispatch to the
+  target repository. The built-in `GITHUB_TOKEN` cannot dispatch to a different
+  private repository.

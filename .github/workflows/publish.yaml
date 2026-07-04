@@ -9,6 +9,11 @@ permissions:
   contents: read
   packages: write
 
+env:
+  APP_NAME: rmovie
+  DEPLOY_ENVIRONMENT: ${{ vars.DEPLOY_ENVIRONMENT || 'dev' }}
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -23,7 +28,7 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=long
             type=ref,event=tag
@@ -35,3 +40,17 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Dispatch image update to GitOps
+        if: github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITOPS_REPO_TOKEN }}
+          repository: ${{ vars.GITOPS_REPOSITORY }}
+          event-type: image-published
+          client-payload: >-
+            {
+              "app": "${{ env.APP_NAME }}",
+              "image": "${{ env.IMAGE_NAME }}",
+              "tag": "${{ steps.meta.outputs.version }}",
+              "environment": "${{ env.DEPLOY_ENVIRONMENT }}"
+            }
