@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+        env:
+          AUTH_PROVIDER: keycloak
+          AUTH_ISSUER: https://keycloak.invalid/realms/rmovie
+          AUTH_CLIENT_ID: ci
+          AUTH_CLIENT_SECRET: ci
+          AUTH_SECRET: ci-only-secret-ci-only-secret
+          GOOGLE_SHEETS_SPREADSHEET_ID: ci
