@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { RandomItemCard } from "@/components/random-item-card";
 import { AccountButton, SignOutButton } from "@/components/session-button";
+import { UserProfile } from "@/components/user-profile";
 import { recordSuggestion } from "@/lib/activity-log";
 import { getAccountUrl, getRedirectDelayMs } from "@/lib/config";
 import { getRandomSheetItem } from "@/lib/google-sheets";
@@ -43,12 +44,13 @@ export default async function Home() {
   return (
     <Container maxWidth="md">
       <Stack spacing={4} sx={{ alignItems: "center", minHeight: "100vh", py: 3 }}>
-        <Box sx={{ alignItems: "center", display: "flex", justifyContent: "space-between", width: "100%" }}>
+        <Box sx={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "space-between", width: "100%" }}>
           <Box>
             <Typography sx={{ fontWeight: 800 }} variant="h5">rmovie</Typography>
             <Typography color="text.secondary" variant="caption">{getAppVersion()}</Typography>
           </Box>
-          <Box sx={{ display: "flex", gap: 1 }}>
+          <Box sx={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 1 }}>
+            <Box sx={{ mr: 1 }}><UserProfile user={session.user} /></Box>
             <AccountButton href="/activity" label="Activity" />
             {accountUrl && <AccountButton href={accountUrl} />}
             <SignOutButton />

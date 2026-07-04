@@ -2,7 +2,9 @@ import { Button, Container, Stack, Typography } from "@mui/material";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ActivityTable } from "@/components/activity-table";
+import { UserProfile } from "@/components/user-profile";
 import { listSuggestions } from "@/lib/activity-log";
+import { getAppVersion } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +21,15 @@ export default async function ActivityPage() {
             <Typography component="h1" variant="h4">Activity</Typography>
             <Typography color="text.secondary">Suggestions and accepted movie redirects</Typography>
           </div>
-          <Button href="/">Back to rmovie</Button>
+          <Stack sx={{ alignItems: "flex-end" }}>
+            <UserProfile user={session.user} />
+            <Button href="/">Back to rmovie</Button>
+          </Stack>
         </Stack>
         <ActivityTable rows={rows} />
+        <Typography color="text.secondary" sx={{ textAlign: "center" }} variant="caption">
+          {getAppVersion()}
+        </Typography>
       </Stack>
     </Container>
   );
