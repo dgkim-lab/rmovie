@@ -6,8 +6,10 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 FROM dependencies AS builder
+ARG APP_VERSION=dev
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_PUBLIC_APP_VERSION=${APP_VERSION} \
     AUTH_PROVIDER=keycloak \
     AUTH_ISSUER=https://build.invalid/realms/rmovie \
     AUTH_CLIENT_ID=build \

@@ -8,6 +8,7 @@ import { getAccountUrl, getRedirectDelayMs } from "@/lib/config";
 import { getRandomSheetItem } from "@/lib/google-sheets";
 import type { RandomItem } from "@/lib/random-item";
 import { getErrorTraceContext } from "@/lib/telemetry";
+import { getAppVersion } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,10 @@ export default async function Home() {
     <Container maxWidth="md">
       <Stack spacing={4} sx={{ alignItems: "center", minHeight: "100vh", py: 3 }}>
         <Box sx={{ alignItems: "center", display: "flex", justifyContent: "space-between", width: "100%" }}>
-          <Typography sx={{ fontWeight: 800 }} variant="h5">rmovie</Typography>
+          <Box>
+            <Typography sx={{ fontWeight: 800 }} variant="h5">rmovie</Typography>
+            <Typography color="text.secondary" variant="caption">{getAppVersion()}</Typography>
+          </Box>
           <Box sx={{ display: "flex", gap: 1 }}>
             <AccountButton href="/activity" label="Activity" />
             {accountUrl && <AccountButton href={accountUrl} />}
