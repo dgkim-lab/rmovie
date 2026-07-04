@@ -58,7 +58,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Dispatch image update to GitOps
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/')
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITOPS_REPO_TOKEN }}

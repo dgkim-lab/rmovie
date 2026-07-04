@@ -53,7 +53,7 @@ migration image tag is `sha-<commit>-migrate`. The Job runs
 
 ## GitHub dispatch
 
-After publishing the `main` image, the application workflow sends an
+After publishing the `main` or `feature/**` image, the application workflow sends an
 `image-published` repository dispatch to the GitOps repository:
 
 ```json

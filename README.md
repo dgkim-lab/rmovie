@@ -70,5 +70,6 @@ See [GITOPS.md](GITOPS.md) for the deployment contract and `.env.example` for
 all runtime settings.
 
 The container publishing workflow emits an `image-published` repository
-dispatch after a successful `main` image push. Configure `GITOPS_REPOSITORY`
-and `GITOPS_REPO_TOKEN` as described in [GITOPS.md](GITOPS.md).
+dispatch after a successful `main` or `feature/**` image push. Configure
+`GITOPS_REPOSITORY` and `GITOPS_REPO_TOKEN` as described in
+[GITOPS.md](GITOPS.md).
