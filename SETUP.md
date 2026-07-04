@@ -197,6 +197,6 @@ telemetry settings in a ConfigMap. Set `AUTH_URL` to the public HTTPS ingress
 URL, and register its matching callback with Keycloak or Cognito. See
 [GITOPS.md](GITOPS.md) for the complete runtime contract.
 
-Store `DATABASE_URL` in the runtime Secret. Run the matching `-migrate`
-container image as a sync-wave or pre-deployment Job before rolling out the
-application image.
+Store `DATABASE_URL` in the runtime Secret. Run the published application image
+as a sync-wave or pre-deployment Job with command `npm run db:deploy` before
+rolling out the application Deployment.

@@ -46,10 +46,11 @@ it as a health probe.
 Each application release must hand off its immutable image reference and note
 changes to environment variables, callbacks, probes, or telemetry.
 
-Before rolling out an application image, run its matching migration image as a
-Kubernetes Job with `DATABASE_URL`. For application tag `sha-<commit>`, the
-migration image tag is `sha-<commit>-migrate`. The Job runs
-`prisma migrate deploy` and must succeed before deployment proceeds.
+Before rolling out an application image, run a Kubernetes Job with the same
+published image tag and `DATABASE_URL`, overriding the command to
+`npm run db:deploy`. For application tag `sha-<commit>`, GitOps should use the
+same `sha-<commit>` image for both the migration Job and the application
+Deployment. The migration Job must succeed before deployment proceeds.
 
 ## GitHub dispatch
 

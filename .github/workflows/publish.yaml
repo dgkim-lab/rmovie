@@ -32,29 +32,12 @@ jobs:
           tags: |
             type=sha,format=long
             type=ref,event=tag
-      - id: migrate-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=long,suffix=-migrate
-            type=ref,event=tag,suffix=-migrate
       - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Build and push migration image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          target: migrator
-          push: true
-          tags: ${{ steps.migrate-meta.outputs.tags }}
-          labels: ${{ steps.migrate-meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Dispatch image update to GitOps
