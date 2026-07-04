@@ -2,7 +2,7 @@ name: Publish container
 
 on:
   push:
-    branches: [main]
+    branches: [main, "feature/**"]
     tags: ["v*"]
 
 permissions:
