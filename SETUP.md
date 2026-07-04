@@ -42,6 +42,7 @@ AUTH_PROVIDER=keycloak
 AUTH_ISSUER=http://localhost:8080/realms/rmovie
 AUTH_CLIENT_ID=rmovie
 AUTH_CLIENT_SECRET=the-keycloak-client-secret
+AUTH_SCOPES=openid
 AUTH_SECRET=replace-with-output-from-openssl-rand-base64-32
 AUTH_URL=http://localhost:3000
 AUTH_TRUST_HOST=true
@@ -58,8 +59,8 @@ In the Cognito console:
 2. Configure a user-pool domain so Cognito can provide its managed login page.
 3. Create an app client for a traditional server-rendered web application and
    generate a client secret.
-4. Enable the authorization-code grant with `openid`, `email`, and `profile`
-   scopes.
+4. Enable the authorization-code grant and the `openid` scope. The application
+   does not require `email` or `profile` by default.
 5. Add `http://localhost:3000/api/auth/callback/cognito` as an allowed callback
    URL. Add the equivalent HTTPS production URL separately.
 6. Select the Cognito user pool as an identity provider for the app client and
@@ -72,6 +73,7 @@ AUTH_PROVIDER=cognito
 AUTH_ISSUER=https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_POOLID
 AUTH_CLIENT_ID=the-cognito-app-client-id
 AUTH_CLIENT_SECRET=the-cognito-app-client-secret
+AUTH_SCOPES=openid
 AUTH_SECRET=replace-with-output-from-openssl-rand-base64-32
 AUTH_URL=http://localhost:3000
 AUTH_TRUST_HOST=true

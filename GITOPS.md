@@ -20,6 +20,7 @@ interface.
 | `AUTH_PROVIDER` | ConfigMap | `keycloak` or `cognito` |
 | `AUTH_ISSUER`, `AUTH_URL` | ConfigMap | OIDC issuer and public application URL |
 | `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `AUTH_SECRET` | Secret | OIDC and session secrets |
+| `AUTH_SCOPES` | ConfigMap | OIDC scopes; default `openid` |
 | `GOOGLE_SHEETS_SPREADSHEET_ID`, `GOOGLE_SHEETS_RANGE` | ConfigMap | Sheet source |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Secret | Google service-account JSON |
 | `REDIRECT_DELAY_MS` | ConfigMap | Redirect delay; default `4000` |

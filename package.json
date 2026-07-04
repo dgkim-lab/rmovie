@@ -20,6 +20,7 @@
     "@emotion/styled": "latest",
     "@mui/icons-material": "latest",
     "@mui/material": "latest",
+    "@mui/material-nextjs": "^9.1.1",
     "@opentelemetry/api": "latest",
     "@opentelemetry/exporter-trace-otlp-http": "latest",
     "@opentelemetry/resources": "latest",

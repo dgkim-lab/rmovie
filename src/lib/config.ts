@@ -25,6 +25,7 @@ export function getAuthConfig() {
     issuer: required("AUTH_ISSUER"),
     clientId: required("AUTH_CLIENT_ID"),
     clientSecret: required("AUTH_CLIENT_SECRET"),
+    scopes: process.env.AUTH_SCOPES?.trim() || "openid",
   };
 }
 

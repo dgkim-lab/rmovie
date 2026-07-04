@@ -8,6 +8,7 @@ const options = {
   clientId: config.clientId,
   clientSecret: config.clientSecret,
   issuer: config.issuer,
+  authorization: { params: { scope: config.scopes } },
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
