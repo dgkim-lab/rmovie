@@ -9,6 +9,7 @@ const options = {
   clientSecret: config.clientSecret,
   issuer: config.issuer,
   authorization: { params: { scope: config.scopes } },
+  checks: config.checks,
 };
 
 function providerSubject(profile?: Record<string, unknown>) {

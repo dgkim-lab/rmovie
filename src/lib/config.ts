@@ -26,6 +26,10 @@ export function getAuthConfig() {
     clientId: required("AUTH_CLIENT_ID"),
     clientSecret: required("AUTH_CLIENT_SECRET"),
     scopes: process.env.AUTH_SCOPES?.trim() || "openid",
+    // Cognito does not advertise PKCE in discovery, so Auth.js falls back to a
+    // nonce during sign-in. Configure it explicitly so the callback request
+    // also consumes the nonce cookie and validates the returned ID token.
+    checks: provider === "cognito" ? (["nonce"] as Array<"nonce">) : undefined,
     appUrl: required("AUTH_URL").replace(/\/$/, ""),
     logoutEndpoint: process.env.AUTH_LOGOUT_URL?.trim(),
     accountUrl: process.env.AUTH_ACCOUNT_URL?.trim(),
