@@ -11,14 +11,25 @@ const options = {
   authorization: { params: { scope: config.scopes } },
 };
 
+function providerSubject(profile?: Record<string, unknown>) {
+  return typeof profile?.sub === "string" && profile.sub.length > 0 ? profile.sub : undefined;
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [config.provider === "keycloak" ? Keycloak(options) : Cognito(options)],
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
   trustHost: true,
   callbacks: {
+    jwt({ token, profile }) {
+      const subject = providerSubject(profile);
+      // Keep the provider's raw subject so activity ownership does not depend on Auth.js remapping.
+      if (subject) token.providerSubject = subject;
+      return token;
+    },
     session({ session, token }) {
-      if (token.sub) session.user.id = token.sub;
+      if (typeof token.providerSubject === "string") session.user.id = token.providerSubject;
+      else if (token.sub) session.user.id = token.sub;
       return session;
     },
     redirect({ url, baseUrl }) {
