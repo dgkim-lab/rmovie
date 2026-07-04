@@ -3,6 +3,9 @@
 `rmovie` selects a random `name` and `url` row from a private Google Sheet,
 shows it to an authenticated user, and redirects after a configurable delay.
 Keycloak and Amazon Cognito are supported as selectable OIDC providers.
+Signing out clears both the local Auth.js session and the configured provider
+session. Keycloak exposes its account console automatically; Cognito account
+management requires an optional application-owned `AUTH_ACCOUNT_URL`.
 
 ## Local development
 

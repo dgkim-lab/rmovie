@@ -21,6 +21,8 @@ interface.
 | `AUTH_ISSUER`, `AUTH_URL` | ConfigMap | OIDC issuer and public application URL |
 | `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET`, `AUTH_SECRET` | Secret | OIDC and session secrets |
 | `AUTH_SCOPES` | ConfigMap | OIDC scopes; default `openid` |
+| `AUTH_LOGOUT_URL` | ConfigMap | Required Cognito managed-login `/logout` URL; optional for Keycloak |
+| `AUTH_ACCOUNT_URL` | ConfigMap | Optional account-management page; Keycloak derives its console URL |
 | `GOOGLE_SHEETS_SPREADSHEET_ID`, `GOOGLE_SHEETS_RANGE` | ConfigMap | Sheet source |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Secret | Google service-account JSON |
 | `REDIRECT_DELAY_MS` | ConfigMap | Redirect delay; default `4000` |

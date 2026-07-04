@@ -26,7 +26,39 @@ export function getAuthConfig() {
     clientId: required("AUTH_CLIENT_ID"),
     clientSecret: required("AUTH_CLIENT_SECRET"),
     scopes: process.env.AUTH_SCOPES?.trim() || "openid",
+    appUrl: required("AUTH_URL").replace(/\/$/, ""),
+    logoutEndpoint: process.env.AUTH_LOGOUT_URL?.trim(),
+    accountUrl: process.env.AUTH_ACCOUNT_URL?.trim(),
   };
+}
+
+export function getFederatedLogoutUrl() {
+  const config = getAuthConfig();
+  const returnUrl = `${config.appUrl}/login`;
+
+  if (config.provider === "cognito") {
+    if (!config.logoutEndpoint) {
+      throw new Error("AUTH_LOGOUT_URL is required for Cognito federated logout");
+    }
+    const url = new URL(config.logoutEndpoint);
+    url.searchParams.set("client_id", config.clientId);
+    url.searchParams.set("logout_uri", returnUrl);
+    return url.toString();
+  }
+
+  const url = new URL(
+    config.logoutEndpoint || `${config.issuer.replace(/\/$/, "")}/protocol/openid-connect/logout`,
+  );
+  url.searchParams.set("client_id", config.clientId);
+  url.searchParams.set("post_logout_redirect_uri", returnUrl);
+  return url.toString();
+}
+
+export function getAccountUrl() {
+  const config = getAuthConfig();
+  if (config.accountUrl) return config.accountUrl;
+  if (config.provider === "keycloak") return `${config.issuer.replace(/\/$/, "")}/account`;
+  return null;
 }
 
 export function getSheetConfig() {

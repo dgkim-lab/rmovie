@@ -12,6 +12,7 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
     AUTH_CLIENT_ID=build \
     AUTH_CLIENT_SECRET=build \
     AUTH_SECRET=build-only-secret-build-only-secret \
+    AUTH_URL=http://localhost:3000 \
     GOOGLE_SHEETS_SPREADSHEET_ID=build
 RUN npm run build
 

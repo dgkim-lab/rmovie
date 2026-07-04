@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Cognito from "next-auth/providers/cognito";
 import Keycloak from "next-auth/providers/keycloak";
-import { getAuthConfig } from "@/lib/config";
+import { getAuthConfig, getFederatedLogoutUrl } from "@/lib/config";
 
 const config = getAuthConfig();
 const options = {
@@ -16,4 +16,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
   trustHost: true,
+  callbacks: {
+    redirect({ url, baseUrl }) {
+      if (url.startsWith(`${baseUrl}/`)) return url;
+      if (url === getFederatedLogoutUrl()) return url;
+      return baseUrl;
+    },
+  },
 });

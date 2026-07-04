@@ -28,4 +28,5 @@ jobs:
           AUTH_CLIENT_ID: ci
           AUTH_CLIENT_SECRET: ci
           AUTH_SECRET: ci-only-secret-ci-only-secret
+          AUTH_URL: http://localhost:3000
           GOOGLE_SHEETS_SPREADSHEET_ID: ci

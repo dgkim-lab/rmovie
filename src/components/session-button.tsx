@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { signIn, signOut } from "@/auth";
-import type { AuthProvider } from "@/lib/config";
+import { getFederatedLogoutUrl, type AuthProvider } from "@/lib/config";
 
 export function SignInButton({ provider }: { provider: AuthProvider }) {
   return (
@@ -12,8 +12,12 @@ export function SignInButton({ provider }: { provider: AuthProvider }) {
 
 export function SignOutButton() {
   return (
-    <form action={async () => { "use server"; await signOut({ redirectTo: "/login" }); }}>
+    <form action={async () => { "use server"; await signOut({ redirectTo: getFederatedLogoutUrl() }); }}>
       <Button color="inherit" size="small" type="submit">Sign out</Button>
     </form>
   );
+}
+
+export function AccountButton({ href }: { href: string }) {
+  return <Button color="inherit" href={href} size="small">Manage account</Button>;
 }

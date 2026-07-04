@@ -32,8 +32,10 @@ In the Keycloak administration console:
    `http://localhost:3000/api/auth/callback/keycloak`.
 5. For production, add
    `https://rmovie.example.com/api/auth/callback/keycloak` using the real host.
-6. Copy the client secret from the client's Credentials tab.
-7. Create a realm user and set a non-temporary password for testing.
+6. Add `http://localhost:3000/login` and the equivalent production URL to
+   **Valid post logout redirect URIs**.
+7. Copy the client secret from the client's Credentials tab.
+8. Create a realm user and set a non-temporary password for testing.
 
 Configure `.env`:
 
@@ -50,6 +52,9 @@ AUTH_TRUST_HOST=true
 
 `AUTH_ISSUER` is the realm URL, not the administration-console URL. Confirm it
 by opening `${AUTH_ISSUER}/.well-known/openid-configuration`.
+The application derives the account console as `${AUTH_ISSUER}/account` and
+the logout endpoint from the issuer. Both may be overridden with
+`AUTH_ACCOUNT_URL` and `AUTH_LOGOUT_URL`.
 
 ## 2B. Amazon Cognito
 
@@ -63,7 +68,9 @@ In the Cognito console:
    does not require `email` or `profile` by default.
 5. Add `http://localhost:3000/api/auth/callback/cognito` as an allowed callback
    URL. Add the equivalent HTTPS production URL separately.
-6. Select the Cognito user pool as an identity provider for the app client and
+6. Add `http://localhost:3000/login` and its production equivalent as allowed
+   sign-out URLs.
+7. Select the Cognito user pool as an identity provider for the app client and
    create a test user.
 
 Configure `.env`:
@@ -77,11 +84,19 @@ AUTH_SCOPES=openid
 AUTH_SECRET=replace-with-output-from-openssl-rand-base64-32
 AUTH_URL=http://localhost:3000
 AUTH_TRUST_HOST=true
+AUTH_LOGOUT_URL=https://your-domain.auth.ap-northeast-2.amazoncognito.com/logout
+# Optional: Cognito has no built-in general account console.
+# AUTH_ACCOUNT_URL=https://your-application.example/account
 ```
 
 Replace the region and user-pool ID in `AUTH_ISSUER`. This is the user-pool
 issuer; it is not the Cognito managed-login domain. Cognito accepts HTTP only
 for localhost testing; production callbacks must use HTTPS.
+
+`AUTH_LOGOUT_URL` uses the domain configured under Cognito **Branding > Domain**,
+not `AUTH_ISSUER`. Cognito has no Keycloak-style account console, so the Manage
+account link appears only if `AUTH_ACCOUNT_URL` points to a page supplied by
+your application or another account-management system.
 
 ## 3. Run locally
 
