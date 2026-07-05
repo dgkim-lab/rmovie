@@ -100,6 +100,32 @@ your application or another account-management system.
 
 ## 3. Run locally
 
+### PostgreSQL
+
+Add a strong database password and matching connection URL to `.env`:
+
+```dotenv
+RMOVIE_DB_PASSWORD=replace-with-a-strong-local-password
+DATABASE_URL=postgresql://rmovie:replace-with-a-strong-local-password@localhost:5432/rmovie
+```
+
+Start PostgreSQL, create the role/database once, and apply migrations:
+
+```bash
+docker compose up -d postgres
+RMOVIE_DB_PASSWORD='replace-with-a-strong-local-password' npm run db:setup
+npm run db:deploy
+```
+
+`db:setup` loads its PostgreSQL settings from `.env`, is idempotent, and
+requires the PostgreSQL `psql` client. An explicitly exported shell variable
+overrides `.env`; set `ENV_FILE` to load another file. It defaults to the local
+Compose administrator URL. Override `POSTGRES_ADMIN_URL`, `RMOVIE_DB_NAME`, or
+`RMOVIE_DB_USER` for another PostgreSQL server. Prisma Migrate owns tables
+inside the database and `db:deploy` is safe to rerun.
+
+### Application
+
 Create the session secret and complete the environment file:
 
 ```bash
@@ -117,6 +143,7 @@ docker compose up --build
 ```
 
 The application is on port 3000 and Jaeger is on port 16686.
+The signed-in user's activity history is at `/activity`.
 
 ## 4. Argo CD and GitOps credentials
 
@@ -169,3 +196,7 @@ Keep `AUTH_PROVIDER`, `AUTH_ISSUER`, `AUTH_URL`, spreadsheet ID/range, and
 telemetry settings in a ConfigMap. Set `AUTH_URL` to the public HTTPS ingress
 URL, and register its matching callback with Keycloak or Cognito. See
 [GITOPS.md](GITOPS.md) for the complete runtime contract.
+
+Store `DATABASE_URL` in the runtime Secret. Run the published application image
+as a sync-wave or pre-deployment Job with command `npm run db:deploy` before
+rolling out the application Deployment.

@@ -7,6 +7,11 @@ Signing out clears both the local Auth.js session and the configured provider
 session. Keycloak exposes its account console automatically; Cognito account
 management requires an optional application-owned `AUTH_ACCOUNT_URL`.
 
+Each suggestion and accepted redirect is recorded in PostgreSQL through
+Prisma. Records include provider-qualified user identity and Google Sheet
+source metadata. Users can view their latest activity at `/activity`, delete
+individual rows, or soft-delete their complete visible history.
+
 ## Local development
 
 Requirements: Node.js 22+, npm, a Google service account, and an OIDC client.
@@ -65,5 +70,6 @@ See [GITOPS.md](GITOPS.md) for the deployment contract and `.env.example` for
 all runtime settings.
 
 The container publishing workflow emits an `image-published` repository
-dispatch after a successful `main` image push. Configure `GITOPS_REPOSITORY`
-and `GITOPS_REPO_TOKEN` as described in [GITOPS.md](GITOPS.md).
+dispatch after a successful `main` or `feature/**` image push. Configure
+`GITOPS_REPOSITORY` and `GITOPS_REPO_TOKEN` as described in
+[GITOPS.md](GITOPS.md).

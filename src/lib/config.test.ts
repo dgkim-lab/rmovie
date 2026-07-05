@@ -28,6 +28,28 @@ describe("configuration", () => {
     expect(() => getAuthConfig()).toThrow("AUTH_PROVIDER must be keycloak or cognito");
   });
 
+  it("uses persistent nonce validation for Cognito federated login", () => {
+    Object.assign(process.env, {
+      AUTH_PROVIDER: "cognito",
+      AUTH_ISSUER: "https://cognito-idp.example/pool",
+      AUTH_CLIENT_ID: "client",
+      AUTH_CLIENT_SECRET: "secret",
+      AUTH_URL: "https://rmovie.example",
+    });
+    expect(getAuthConfig().checks).toEqual(["nonce"]);
+  });
+
+  it("leaves Keycloak OIDC checks at the Auth.js defaults", () => {
+    Object.assign(process.env, {
+      AUTH_PROVIDER: "keycloak",
+      AUTH_ISSUER: "https://identity.example/realms/rmovie",
+      AUTH_CLIENT_ID: "client",
+      AUTH_CLIENT_SECRET: "secret",
+      AUTH_URL: "https://rmovie.example",
+    });
+    expect(getAuthConfig().checks).toBeUndefined();
+  });
+
   it("builds a Keycloak logout and account URL", () => {
     Object.assign(process.env, {
       AUTH_PROVIDER: "keycloak",

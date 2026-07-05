@@ -26,6 +26,7 @@ interface.
 | `GOOGLE_SHEETS_SPREADSHEET_ID`, `GOOGLE_SHEETS_RANGE` | ConfigMap | Sheet source |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | Secret | Google service-account JSON |
 | `REDIRECT_DELAY_MS` | ConfigMap | Redirect delay; default `4000` |
+| `DATABASE_URL` | Secret | PostgreSQL connection URL for activity logging |
 
 The OIDC client callback is
 `${AUTH_URL}/api/auth/callback/${AUTH_PROVIDER}`. Credentials may instead be
@@ -45,9 +46,15 @@ it as a health probe.
 Each application release must hand off its immutable image reference and note
 changes to environment variables, callbacks, probes, or telemetry.
 
+Before rolling out an application image, run a Kubernetes Job with the same
+published image tag and `DATABASE_URL`, overriding the command to
+`npm run db:deploy`. For application tag `sha-<commit>`, GitOps should use the
+same `sha-<commit>` image for both the migration Job and the application
+Deployment. The migration Job must succeed before deployment proceeds.
+
 ## GitHub dispatch
 
-After publishing the `main` image, the application workflow sends an
+After publishing the `main` or `feature/**` image, the application workflow sends an
 `image-published` repository dispatch to the GitOps repository:
 
 ```json
