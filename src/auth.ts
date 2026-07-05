@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Cognito from "next-auth/providers/cognito";
 import Keycloak from "next-auth/providers/keycloak";
 import { getAuthConfig, getFederatedLogoutUrl } from "@/lib/config";
+import { syncUser } from "@/lib/users";
 
 const config = getAuthConfig();
 const options = {
@@ -28,9 +29,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (subject) token.providerSubject = subject;
       return token;
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       if (typeof token.providerSubject === "string") session.user.id = token.providerSubject;
       else if (token.sub) session.user.id = token.sub;
+      const localUser = await syncUser(session.user);
+      session.user.localId = localUser.id;
+      session.user.roles = localUser.roles.map(({ role }) => role);
       return session;
     },
     redirect({ url, baseUrl }) {

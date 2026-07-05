@@ -48,6 +48,7 @@ AUTH_SCOPES=openid
 AUTH_SECRET=replace-with-output-from-openssl-rand-base64-32
 AUTH_URL=http://localhost:3000
 AUTH_TRUST_HOST=true
+ADMIN_USER_SUBJECTS=the-oidc-sub-claim-for-your-initial-admin
 ```
 
 `AUTH_ISSUER` is the realm URL, not the administration-console URL. Confirm it
@@ -142,8 +143,28 @@ Open <http://localhost:3000>. Alternatively, after creating both `.env` and
 docker compose up --build
 ```
 
+The Compose stack now runs two one-shot helpers before the app starts:
+
+- `db-setup` creates or updates the `RMOVIE_DB_USER` role and `RMOVIE_DB_NAME`
+  database inside the local `postgres` service.
+- `migrate` runs `npm run db:deploy` against the Compose PostgreSQL instance.
+
+You can rerun them manually when needed:
+
+```bash
+docker compose run --rm db-setup
+docker compose run --rm migrate
+```
+
+`npm run db:studio` opens Prisma Studio using `DATABASE_URL` from `.env`.
+Use `npm run db:studio:docker` to start and prepare the Compose PostgreSQL
+database and open Studio against that database, regardless of the
+`DATABASE_URL` configured for another database in `.env`.
+
 The application is on port 3000 and Jaeger is on port 16686.
 The signed-in user's activity history is at `/activity`.
+After the configured bootstrap user signs in, administration is available at
+`/admin`. Additional administrators can then be assigned in the user table.
 
 ## 4. Argo CD and GitOps credentials
 

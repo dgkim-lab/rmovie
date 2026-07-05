@@ -24,6 +24,7 @@ export function recordSuggestion(session: Session, item: RandomItem) {
     return getDatabase().movieSuggestion.create({
       data: {
         ...identity,
+        userId: session.user.localId,
         userEmail: session.user.email,
         sheetId: source.spreadsheetId,
         sheetRange: source.range,

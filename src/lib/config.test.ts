@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   getAccountUrl,
+  getAdminSubjects,
   getAuthConfig,
   getDebugConfig,
   getFederatedLogoutUrl,
@@ -16,6 +17,11 @@ describe("configuration", () => {
     delete process.env.RANDOM_ERROR_RATE;
     expect(getRedirectDelayMs()).toBe(4000);
     expect(getDebugConfig()).toEqual({ enabled: false, errorRate: 0.5 });
+  });
+
+  it("parses bootstrap admin subjects", () => {
+    process.env.ADMIN_USER_SUBJECTS = " first-subject, second-subject, ";
+    expect([...getAdminSubjects()]).toEqual(["first-subject", "second-subject"]);
   });
 
   it("rejects invalid numeric values", () => {
