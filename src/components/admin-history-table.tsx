@@ -17,6 +17,16 @@ export function AdminHistoryTable({ rows }: { rows: AdminHistoryRow[] }) {
     if (!response.ok) setError("History update failed"); else router.refresh();
     setBusy(undefined);
   }
+  async function permanentlyDelete(row: AdminHistoryRow) {
+    if (!window.confirm(`Permanently delete “${row.movieName}”? This cannot be undone.`)) return;
+    setBusy(row.id); setError(undefined);
+    const response = await fetch(`/api/admin/history/${row.id}`, { method: "DELETE" });
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { error?: string } | null;
+      setError(body?.error || "Permanent deletion failed");
+    } else router.refresh();
+    setBusy(undefined);
+  }
   return <Stack spacing={2}>{error && <Alert severity="error">{error}</Alert>}
     <TableContainer component={Paper}><Table><TableHead><TableRow><TableCell>Movie</TableCell><TableCell>User</TableCell><TableCell>Status</TableCell><TableCell>Suggested</TableCell><TableCell align="right">Manage</TableCell></TableRow></TableHead>
       <TableBody>{rows.map((row) => <TableRow key={row.id} sx={{ opacity: row.deletedAt ? .55 : 1 }}>
@@ -24,7 +34,10 @@ export function AdminHistoryTable({ rows }: { rows: AdminHistoryRow[] }) {
         <TableCell>{row.userEmail || row.userSubject}<br /><small>{row.authProvider}</small></TableCell>
         <TableCell><Stack direction="row" spacing={1}><Chip label={row.status.toLowerCase()} size="small" />{row.deletedAt && <Chip color="error" label="deleted" size="small" />}</Stack></TableCell>
         <TableCell>{new Date(row.suggestedAt).toLocaleString()}</TableCell>
-        <TableCell align="right"><Button color={row.deletedAt ? "primary" : "error"} disabled={busy === row.id} onClick={() => void update(row)}>{row.deletedAt ? "Restore" : "Delete"}</Button></TableCell>
+        <TableCell align="right"><Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end" }}>
+          <Button color={row.deletedAt ? "primary" : "error"} disabled={busy === row.id} onClick={() => void update(row)}>{row.deletedAt ? "Restore" : "Soft delete"}</Button>
+          {row.deletedAt && <Button color="error" disabled={busy === row.id} onClick={() => void permanentlyDelete(row)} variant="contained">Delete permanently</Button>}
+        </Stack></TableCell>
       </TableRow>)}</TableBody></Table></TableContainer>
   </Stack>;
 }

@@ -13,7 +13,8 @@ source metadata. Users can view their latest activity at `/activity`, delete
 individual rows, or soft-delete their complete visible history.
 
 Administrators can manage application roles at `/admin/users` and inspect,
-delete, or restore all users' history at `/admin/history`. Set
+soft-delete, restore, or permanently delete all users' history at
+`/admin/history`. Permanent deletion is available only after soft deletion. Set
 `ADMIN_USER_SUBJECTS` to a comma-separated list of trusted OIDC `sub` claims to
 bootstrap administrators. A configured subject is re-granted admin access on
 its next request, which also provides role-recovery access.
