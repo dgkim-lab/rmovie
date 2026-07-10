@@ -30,6 +30,7 @@
     "@mui/material-nextjs": "^9.1.1",
     "@opentelemetry/api": "latest",
     "@opentelemetry/exporter-trace-otlp-http": "latest",
+    "@opentelemetry/instrumentation-pg": "latest",
     "@opentelemetry/resources": "latest",
     "@opentelemetry/sdk-node": "latest",
     "@opentelemetry/semantic-conventions": "latest",
