@@ -12,6 +12,13 @@ Prisma. Records include provider-qualified user identity and Google Sheet
 source metadata. Users can view their latest activity at `/activity`, delete
 individual rows, or soft-delete their complete visible history.
 
+Administrators can manage application roles at `/admin/users` and inspect,
+soft-delete, restore, or permanently delete all users' history at
+`/admin/history`. Permanent deletion is available only after soft deletion. Set
+`ADMIN_USER_SUBJECTS` to a comma-separated list of trusted OIDC `sub` claims to
+bootstrap administrators. A configured subject is re-granted admin access on
+its next request, which also provides role-recovery access.
+
 ## Local development
 
 Requirements: Node.js 22+, npm, a Google service account, and an OIDC client.
@@ -37,6 +44,19 @@ npm test
 npm run build
 ```
 
+Open Prisma Studio against the `DATABASE_URL` loaded from `.env`:
+
+```bash
+npm run db:studio
+```
+
+To start, provision, and migrate the Compose-managed PostgreSQL database before
+opening Studio against it instead, run:
+
+```bash
+npm run db:studio:docker
+```
+
 ## Docker and tracing
 
 With a completed `.env`, start the application, OpenTelemetry Collector, and
@@ -44,6 +64,15 @@ Jaeger:
 
 ```bash
 docker compose up --build
+```
+
+Compose now provisions the application database role/database and runs Prisma
+migrations before the web container starts. To rerun only the idempotent
+database bootstrap or migrations, use:
+
+```bash
+docker compose run --rm db-setup
+docker compose run --rm migrate
 ```
 
 Compose mounts the ignored local `credentials.json` read-only at

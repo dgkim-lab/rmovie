@@ -12,23 +12,60 @@ enum SuggestionStatus {
   ACCEPTED
 }
 
-model MovieSuggestion {
-  id           String           @id @default(uuid()) @db.Uuid
-  userSubject  String
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id           String            @id @default(uuid()) @db.Uuid
+  subject      String
   authProvider String
-  userEmail    String?
-  sheetId      String
-  sheetRange   String
-  movieName    String
-  movieUrl     String
-  status       SuggestionStatus @default(SUGGESTED)
-  suggestedAt  DateTime         @default(now()) @db.Timestamptz(3)
-  acceptedAt   DateTime?        @db.Timestamptz(3)
-  traceId      String?
+  email        String?
+  name         String?
+  image        String?
+  createdAt    DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime          @updatedAt @db.Timestamptz(3)
+  lastSeenAt   DateTime          @default(now()) @db.Timestamptz(3)
+  roles        UserRole[]
+  suggestions  MovieSuggestion[]
+
+  @@unique([authProvider, subject])
+  @@index([email])
+  @@map("users")
+}
+
+model UserRole {
+  userId    String   @db.Uuid
+  role      Role
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, role])
+  @@index([role])
+  @@map("user_roles")
+}
+
+model MovieSuggestion {
+  id              String           @id @default(uuid()) @db.Uuid
+  userSubject     String
+  authProvider    String
+  userEmail       String?
+  userId          String?          @db.Uuid
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sheetId         String
+  sheetRange      String
+  movieName       String
+  movieUrl        String
+  status          SuggestionStatus @default(SUGGESTED)
+  suggestedAt     DateTime         @default(now()) @db.Timestamptz(3)
+  acceptedAt      DateTime?        @db.Timestamptz(3)
+  traceId         String?
   acceptedTraceId String?
-  deletedAt    DateTime?        @db.Timestamptz(3)
+  deletedAt       DateTime?        @db.Timestamptz(3)
 
   @@index([userSubject, suggestedAt])
+  @@index([userId, suggestedAt])
   @@index([status, suggestedAt])
   @@index([userSubject, deletedAt, suggestedAt])
   @@map("movie_suggestions")

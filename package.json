@@ -17,7 +17,9 @@
     "db:setup": "./scripts/setup-postgres.sh",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:studio:docker": "./scripts/prisma-studio-docker.sh"
   },
   "dependencies": {
     "@emotion/cache": "latest",
@@ -28,6 +30,7 @@
     "@mui/material-nextjs": "^9.1.1",
     "@opentelemetry/api": "latest",
     "@opentelemetry/exporter-trace-otlp-http": "latest",
+    "@opentelemetry/instrumentation-pg": "latest",
     "@opentelemetry/resources": "latest",
     "@opentelemetry/sdk-node": "latest",
     "@opentelemetry/semantic-conventions": "latest",

@@ -52,6 +52,7 @@ export default async function Home() {
           <Box sx={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 1 }}>
             <Box sx={{ mr: 1 }}><UserProfile user={session.user} /></Box>
             <AccountButton href="/activity" label="Activity" />
+            {session.user.roles.includes("ADMIN") && <AccountButton href="/admin" label="Admin" />}
             {accountUrl && <AccountButton href={accountUrl} />}
             <SignOutButton />
           </Box>

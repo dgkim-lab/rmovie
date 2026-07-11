@@ -25,7 +25,7 @@ import {
 
 const session: Session = {
   expires: "2099-01-01T00:00:00.000Z",
-  user: { id: "oidc-subject", email: "user@example.com" },
+  user: { id: "oidc-subject", localId: "local-user-id", roles: ["USER"], email: "user@example.com" },
 };
 
 beforeEach(() => vi.clearAllMocks());
@@ -38,6 +38,7 @@ describe("activity logging", () => {
       data: expect.objectContaining({
         userSubject: "oidc-subject",
         authProvider: "cognito",
+        userId: "local-user-id",
         sheetId: "sheet-123",
         sheetRange: "Movies!A:Z",
         movieName: "Movie",

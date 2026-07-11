@@ -1,15 +1,17 @@
+x-app-environment: &app-environment
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+  OTEL_SERVICE_NAME: rmovie
+  OTEL_TRACES_SAMPLER: always_on
+  GOOGLE_CREDENTIALS_FILE: /app/credentials.json
+  DATABASE_URL: postgresql://rmovie:${RMOVIE_DB_PASSWORD:-replace-me}@postgres:5432/rmovie
+
 services:
   app:
     build: .
     env_file:
       - path: .env
         required: false
-    environment:
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-      OTEL_SERVICE_NAME: rmovie
-      OTEL_TRACES_SAMPLER: always_on
-      GOOGLE_CREDENTIALS_FILE: /app/credentials.json
-      DATABASE_URL: postgresql://rmovie:${RMOVIE_DB_PASSWORD:-replace-me}@postgres:5432/rmovie
+    environment: *app-environment
     volumes:
       - ./credentials.json:/app/credentials.json:ro
     ports:
@@ -17,8 +19,35 @@ services:
     depends_on:
       otel-collector:
         condition: service_started
+      migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment: *app-environment
+    command: ["npm", "run", "db:deploy"]
+    depends_on:
+      db-setup:
+        condition: service_completed_successfully
+    restart: "no"
+
+  db-setup:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_ADMIN_URL: postgresql://postgres:postgres@postgres:5432/postgres
+      RMOVIE_DB_NAME: ${RMOVIE_DB_NAME:-rmovie}
+      RMOVIE_DB_USER: ${RMOVIE_DB_USER:-rmovie}
+      RMOVIE_DB_PASSWORD: ${RMOVIE_DB_PASSWORD:-replace-me}
+    command: ["/bin/sh", "/scripts/setup-postgres.sh"]
+    volumes:
+      - ./scripts/setup-postgres.sh:/scripts/setup-postgres.sh:ro
+    depends_on:
       postgres:
         condition: service_healthy
+    restart: "no"
 
   postgres:
     image: postgres:17-alpine

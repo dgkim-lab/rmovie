@@ -76,6 +76,15 @@ export function getDatabaseUrl() {
   return required("DATABASE_URL");
 }
 
+export function getAdminSubjects() {
+  return new Set(
+    (process.env.ADMIN_USER_SUBJECTS || "")
+      .split(",")
+      .map((subject) => subject.trim())
+      .filter(Boolean),
+  );
+}
+
 export function getRedirectDelayMs() {
   return numberInRange("REDIRECT_DELAY_MS", 4000, 0, 60_000);
 }
