@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getDebugConfig } from "@/lib/config";
-import { getErrorTraceContext, withSpan } from "@/lib/telemetry";
+import { annotateActiveSpanWithEndUser, getErrorTraceContext, withSpan } from "@/lib/telemetry";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const { enabled, errorRate } = getDebugConfig();
   if (!enabled) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (!(await auth())?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  annotateActiveSpanWithEndUser(session);
 
   try {
     return await withSpan("debug.random_error", async () => {

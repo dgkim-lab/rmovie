@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRandomSheetItem } from "@/lib/google-sheets";
-import { getErrorTraceContext } from "@/lib/telemetry";
+import { annotateActiveSpanWithEndUser, getErrorTraceContext } from "@/lib/telemetry";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  if (!(await auth())?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  annotateActiveSpanWithEndUser(session);
   try {
     return NextResponse.json(await getRandomSheetItem(), {
       headers: { "Cache-Control": "no-store" },

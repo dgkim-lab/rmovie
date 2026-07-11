@@ -26,7 +26,7 @@ export function endUserAttributes(session: Session): Attributes {
   return attributes;
 }
 
-export function setActiveEndUser(session: Session) {
+export function annotateActiveSpanWithEndUser(session: Session) {
   trace.getActiveSpan()?.setAttributes(endUserAttributes(session));
 }
 
@@ -78,6 +78,6 @@ export function withSessionSpan<T>(
   operation: () => Promise<T>,
   attributes?: Attributes,
 ): Promise<T> {
-  setActiveEndUser(session);
+  annotateActiveSpanWithEndUser(session);
   return withSpan(name, operation, { ...endUserAttributes(session), ...attributes });
 }

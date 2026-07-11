@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { ActivityTable } from "@/components/activity-table";
 import { UserProfile } from "@/components/user-profile";
 import { listSuggestions } from "@/lib/activity-log";
+import { annotateActiveSpanWithEndUser } from "@/lib/telemetry";
 import { getAppVersion } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function ActivityPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
+  annotateActiveSpanWithEndUser(session);
   const rows = await listSuggestions(session);
 
   return (
