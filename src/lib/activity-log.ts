@@ -3,10 +3,11 @@ import type { Session } from "next-auth";
 import { getAuthConfig, getSheetConfig } from "@/lib/config";
 import { getDatabase } from "@/lib/database";
 import type { RandomItem } from "@/lib/random-item";
-import { withSpan } from "@/lib/telemetry";
+import { annotateActiveSpanWithEndUser, withSpan } from "@/lib/telemetry";
 
 function userIdentity(session: Session) {
   if (!session.user.id) throw new Error("Authenticated user has no OIDC subject");
+  annotateActiveSpanWithEndUser(session);
   return {
     userSubject: session.user.id,
     authProvider: getAuthConfig().provider,

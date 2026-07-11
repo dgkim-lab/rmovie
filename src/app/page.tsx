@@ -8,7 +8,7 @@ import { recordSuggestion } from "@/lib/activity-log";
 import { getAccountUrl, getRedirectDelayMs } from "@/lib/config";
 import { getRandomSheetItem } from "@/lib/google-sheets";
 import type { RandomItem } from "@/lib/random-item";
-import { getErrorTraceContext } from "@/lib/telemetry";
+import { annotateActiveSpanWithEndUser, getErrorTraceContext } from "@/lib/telemetry";
 import { getAppVersion } from "@/lib/version";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const session = await auth();
   if (!session?.user) redirect("/login");
+  annotateActiveSpanWithEndUser(session);
   const accountUrl = getAccountUrl();
 
   let item: RandomItem | null = null;

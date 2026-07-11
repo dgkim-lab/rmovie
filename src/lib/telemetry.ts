@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { SpanStatusCode, trace, type Attributes } from "@opentelemetry/api";
+import type { Session } from "next-auth";
 
 const tracer = trace.getTracer("rmovie");
 const errorContexts = new WeakMap<Error, ErrorTraceContext>();
@@ -12,6 +13,18 @@ export interface ErrorTraceContext {
 
 export function getErrorTraceContext(error: unknown): ErrorTraceContext | undefined {
   return error instanceof Error ? errorContexts.get(error) : undefined;
+}
+
+export function endUserAttributes(session: Session): Attributes {
+  const attributes: Attributes = { "enduser.id": session.user.id };
+  // Email is PII. Keep this explicit so operators can redact user.email in the
+  // OpenTelemetry Collector if their retention or access policy requires it.
+  if (session.user.email) attributes["user.email"] = session.user.email;
+  return attributes;
+}
+
+export function annotateActiveSpanWithEndUser(session: Session) {
+  trace.getActiveSpan()?.setAttributes(endUserAttributes(session));
 }
 
 export async function withSpan<T>(

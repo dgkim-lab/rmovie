@@ -88,6 +88,11 @@ In Jaeger, search for the trace ID directly or use the span tag
 and an exception event. Local Compose uses `OTEL_TRACES_SAMPLER=always_on` so
 deliberate errors are not removed by head sampling.
 
+Authenticated request spans carry `enduser.id=<OIDC subject>` and, when the
+identity provider supplies it, `user.email=<email>`. Both attributes contain
+PII; restrict access to Jaeger and redact `user.email` in the Collector when
+email-level trace search is not required.
+
 ## Runtime endpoints
 
 - `GET /api/health/live`: unauthenticated liveness check.

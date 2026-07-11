@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { deleteSuggestion } from "@/lib/activity-log";
+import { annotateActiveSpanWithEndUser } from "@/lib/telemetry";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function DELETE(_: Request, context: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  annotateActiveSpanWithEndUser(session);
   const { id } = await context.params;
   if (!uuidPattern.test(id)) return NextResponse.json({ error: "Invalid suggestion ID" }, { status: 400 });
   const result = await deleteSuggestion(session, id);
