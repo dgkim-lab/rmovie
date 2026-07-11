@@ -36,6 +36,7 @@ export async function withSpan<T>(
   attributes?: Attributes,
 ): Promise<T> {
   const parentSpan = trace.getActiveSpan();
+  if (attributes) parentSpan?.setAttributes(attributes);
   return tracer.startActiveSpan(name, { attributes }, async (span) => {
     try {
       const result = await operation();
