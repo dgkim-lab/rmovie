@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { SpanStatusCode, trace, type Attributes } from "@opentelemetry/api";
+import type { Session } from "next-auth";
 
 const tracer = trace.getTracer("rmovie");
 const errorContexts = new WeakMap<Error, ErrorTraceContext>();
@@ -12,6 +13,21 @@ export interface ErrorTraceContext {
 
 export function getErrorTraceContext(error: unknown): ErrorTraceContext | undefined {
   return error instanceof Error ? errorContexts.get(error) : undefined;
+}
+
+export function endUserAttributes(session: Session): Attributes {
+  const attributes: Attributes = {
+    "enduser.id": session.user.localId,
+    "enduser.role": session.user.roles.join(" "),
+    "rmovie.user.subject": session.user.id,
+  };
+  if (session.user.email) attributes["enduser.email"] = session.user.email;
+  if (session.user.name) attributes["enduser.name"] = session.user.name;
+  return attributes;
+}
+
+export function setActiveEndUser(session: Session) {
+  trace.getActiveSpan()?.setAttributes(endUserAttributes(session));
 }
 
 export async function withSpan<T>(
@@ -54,4 +70,14 @@ export async function withSpan<T>(
       span.end();
     }
   });
+}
+
+export function withSessionSpan<T>(
+  name: string,
+  session: Session,
+  operation: () => Promise<T>,
+  attributes?: Attributes,
+): Promise<T> {
+  setActiveEndUser(session);
+  return withSpan(name, operation, { ...endUserAttributes(session), ...attributes });
 }

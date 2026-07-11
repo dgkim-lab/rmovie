@@ -1,6 +1,7 @@
 import type { Session } from "next-auth";
 import { getAdminSubjects, getAuthConfig } from "@/lib/config";
 import { getDatabase } from "@/lib/database";
+import { withSessionSpan } from "@/lib/telemetry";
 
 export async function syncUser(user: Session["user"]) {
   if (!user.id) throw new Error("Authenticated user has no OIDC subject");
@@ -34,17 +35,21 @@ export function isAdmin(session: Session) {
   return session.user.roles.includes("ADMIN");
 }
 
-export async function listUsers() {
-  return getDatabase().user.findMany({ include: { roles: true }, orderBy: { createdAt: "desc" } });
+export async function listUsers(session: Session) {
+  return withSessionSpan("admin.users.list", session, async () => (
+    getDatabase().user.findMany({ include: { roles: true }, orderBy: { createdAt: "desc" } })
+  ));
 }
 
-export async function setAdminRole(userId: string, enabled: boolean, actorUserId: string) {
+export async function setAdminRole(session: Session, userId: string, enabled: boolean) {
   const database = getDatabase();
-  if (!enabled && userId === actorUserId) throw new Error("You cannot remove your own admin role");
-  if (enabled) {
-    return database.userRole.upsert({ where: { userId_role: { userId, role: "ADMIN" } }, create: { userId, role: "ADMIN" }, update: {} });
-  }
-  const adminCount = await database.userRole.count({ where: { role: "ADMIN" } });
-  if (adminCount <= 1) throw new Error("The last admin role cannot be removed");
-  return database.userRole.deleteMany({ where: { userId, role: "ADMIN" } });
+  return withSessionSpan("admin.users.set_role", session, async () => {
+    if (!enabled && userId === session.user.localId) throw new Error("You cannot remove your own admin role");
+    if (enabled) {
+      return database.userRole.upsert({ where: { userId_role: { userId, role: "ADMIN" } }, create: { userId, role: "ADMIN" }, update: {} });
+    }
+    const adminCount = await database.userRole.count({ where: { role: "ADMIN" } });
+    if (adminCount <= 1) throw new Error("The last admin role cannot be removed");
+    return database.userRole.deleteMany({ where: { userId, role: "ADMIN" } });
+  }, { "rmovie.target_user.id": userId, "rmovie.target_user.admin": enabled });
 }

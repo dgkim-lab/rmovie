@@ -3,7 +3,7 @@ import type { Session } from "next-auth";
 import { getAuthConfig, getSheetConfig } from "@/lib/config";
 import { getDatabase } from "@/lib/database";
 import type { RandomItem } from "@/lib/random-item";
-import { withSpan } from "@/lib/telemetry";
+import { withSessionSpan } from "@/lib/telemetry";
 
 function userIdentity(session: Session) {
   if (!session.user.id) throw new Error("Authenticated user has no OIDC subject");
@@ -18,7 +18,7 @@ function activeTraceId() {
 }
 
 export function recordSuggestion(session: Session, item: RandomItem) {
-  return withSpan("activity.suggestion.create", async () => {
+  return withSessionSpan("activity.suggestion.create", session, async () => {
     const identity = userIdentity(session);
     const source = getSheetConfig();
     return getDatabase().movieSuggestion.create({
@@ -38,7 +38,7 @@ export function recordSuggestion(session: Session, item: RandomItem) {
 }
 
 export function acceptSuggestion(session: Session, id: string) {
-  return withSpan("activity.suggestion.accept", async () => {
+  return withSessionSpan("activity.suggestion.accept", session, async () => {
     const identity = userIdentity(session);
     return getDatabase().movieSuggestion.updateMany({
       where: { id, ...identity, acceptedAt: null, deletedAt: null },
@@ -52,7 +52,7 @@ export function acceptSuggestion(session: Session, id: string) {
 }
 
 export function listSuggestions(session: Session) {
-  return withSpan("activity.suggestion.list", async () => {
+  return withSessionSpan("activity.suggestion.list", session, async () => {
     const identity = userIdentity(session);
     return getDatabase().movieSuggestion.findMany({
       where: { ...identity, deletedAt: null },
@@ -63,7 +63,7 @@ export function listSuggestions(session: Session) {
 }
 
 export function deleteSuggestion(session: Session, id: string) {
-  return withSpan("activity.suggestion.delete", async () => {
+  return withSessionSpan("activity.suggestion.delete", session, async () => {
     const identity = userIdentity(session);
     return getDatabase().movieSuggestion.updateMany({
       where: { id, ...identity, deletedAt: null },
@@ -73,7 +73,7 @@ export function deleteSuggestion(session: Session, id: string) {
 }
 
 export function clearSuggestions(session: Session) {
-  return withSpan("activity.suggestion.clear", async () => {
+  return withSessionSpan("activity.suggestion.clear", session, async () => {
     const identity = userIdentity(session);
     return getDatabase().movieSuggestion.updateMany({
       where: { ...identity, deletedAt: null },

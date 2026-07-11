@@ -12,7 +12,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   if (!uuidPattern.test(id)) return NextResponse.json({ error: "Invalid history ID" }, { status: 400 });
   const body = await request.json().catch(() => null) as { deleted?: unknown } | null;
   if (typeof body?.deleted !== "boolean") return NextResponse.json({ error: "deleted must be a boolean" }, { status: 400 });
-  const result = await setSuggestionDeleted(id, body.deleted);
+  const result = await setSuggestionDeleted(session, id, body.deleted);
   if (!result.count) return NextResponse.json({ error: "History record not found" }, { status: 404 });
   return new NextResponse(null, { status: 204 });
 }
@@ -22,7 +22,7 @@ export async function DELETE(_: Request, context: { params: Promise<{ id: string
   try { requireAdmin(session); } catch { return NextResponse.json({ error: "Forbidden" }, { status: session ? 403 : 401 }); }
   const { id } = await context.params;
   if (!uuidPattern.test(id)) return NextResponse.json({ error: "Invalid history ID" }, { status: 400 });
-  const result = await permanentlyDeleteSuggestion(id);
+  const result = await permanentlyDeleteSuggestion(session, id);
   if (!result.count) {
     return NextResponse.json({ error: "History record not found or must be soft-deleted first" }, { status: 404 });
   }
