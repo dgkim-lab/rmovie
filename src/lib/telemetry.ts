@@ -16,10 +16,13 @@ export function getErrorTraceContext(error: unknown): ErrorTraceContext | undefi
 }
 
 export function endUserAttributes(session: Session): Attributes {
-  const attributes: Attributes = { "enduser.id": session.user.id };
-  // Email is PII. Keep this explicit so operators can redact user.email in the
-  // OpenTelemetry Collector if their retention or access policy requires it.
-  if (session.user.email) attributes["user.email"] = session.user.email;
+  const attributes: Attributes = {
+    "enduser.id": session.user.localId,
+    "enduser.role": session.user.roles.join(" "),
+    "rmovie.user.subject": session.user.id,
+  };
+  if (session.user.email) attributes["enduser.email"] = session.user.email;
+  if (session.user.name) attributes["enduser.name"] = session.user.name;
   return attributes;
 }
 
@@ -67,4 +70,14 @@ export async function withSpan<T>(
       span.end();
     }
   });
+}
+
+export function withSessionSpan<T>(
+  name: string,
+  session: Session,
+  operation: () => Promise<T>,
+  attributes?: Attributes,
+): Promise<T> {
+  annotateActiveSpanWithEndUser(session);
+  return withSpan(name, operation, { ...endUserAttributes(session), ...attributes });
 }

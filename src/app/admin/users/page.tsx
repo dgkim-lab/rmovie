@@ -10,7 +10,7 @@ export default async function AdminUsersPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (!isAdmin(session)) notFound();
-  const users = await listUsers();
+  const users = await listUsers(session);
   return <Container maxWidth="xl" sx={{ py: 4 }}><Stack spacing={3}>
     <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}><div><Typography component="h1" variant="h4">User management</Typography><Typography color="text.secondary">Local OIDC users and application roles</Typography></div><Stack direction="row"><Button href="/admin/history">History</Button><Button href="/">Back to rmovie</Button></Stack></Stack>
     <AdminUserTable currentUserId={session.user.localId} users={users} />
