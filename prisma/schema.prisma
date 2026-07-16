@@ -20,26 +20,26 @@ enum Role {
 model User {
   id           String            @id @default(uuid()) @db.Uuid
   subject      String
-  authProvider String
+  authProvider String            @map("auth_provider")
   email        String?
   name         String?
   image        String?
-  createdAt    DateTime          @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime          @updatedAt @db.Timestamptz(3)
-  lastSeenAt   DateTime          @default(now()) @db.Timestamptz(3)
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  lastSeenAt   DateTime          @default(now()) @map("last_seen_at") @db.Timestamptz(3)
   roles        UserRole[]
   suggestions  MovieSuggestion[]
 
-  @@unique([authProvider, subject])
+  @@unique([authProvider, subject], map: "users_auth_provider_subject_key")
   @@index([email])
   @@map("users")
 }
 
 model UserRole {
-  userId    String   @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
   role      Role
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "user_roles_user_id_fkey")
 
   @@id([userId, role])
   @@index([role])
@@ -48,25 +48,25 @@ model UserRole {
 
 model MovieSuggestion {
   id              String           @id @default(uuid()) @db.Uuid
-  userSubject     String
-  authProvider    String
-  userEmail       String?
-  userId          String?          @db.Uuid
-  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  sheetId         String
-  sheetRange      String
-  movieName       String
-  movieUrl        String
+  userSubject     String           @map("user_subject")
+  authProvider    String           @map("auth_provider")
+  userEmail       String?          @map("user_email")
+  userId          String?          @map("user_id") @db.Uuid
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull, map: "movie_suggestions_user_id_fkey")
+  sheetId         String           @map("sheet_id")
+  sheetRange      String           @map("sheet_range")
+  movieName       String           @map("movie_name")
+  movieUrl        String           @map("movie_url")
   status          SuggestionStatus @default(SUGGESTED)
-  suggestedAt     DateTime         @default(now()) @db.Timestamptz(3)
-  acceptedAt      DateTime?        @db.Timestamptz(3)
-  traceId         String?
-  acceptedTraceId String?
-  deletedAt       DateTime?        @db.Timestamptz(3)
+  suggestedAt     DateTime         @default(now()) @map("suggested_at") @db.Timestamptz(3)
+  acceptedAt      DateTime?        @map("accepted_at") @db.Timestamptz(3)
+  traceId         String?          @map("trace_id")
+  acceptedTraceId String?          @map("accepted_trace_id")
+  deletedAt       DateTime?        @map("deleted_at") @db.Timestamptz(3)
 
-  @@index([userSubject, suggestedAt])
-  @@index([userId, suggestedAt])
-  @@index([status, suggestedAt])
-  @@index([userSubject, deletedAt, suggestedAt])
+  @@index([userSubject, suggestedAt], map: "movie_suggestions_user_subject_suggested_at_idx")
+  @@index([userId, suggestedAt], map: "movie_suggestions_user_id_suggested_at_idx")
+  @@index([status, suggestedAt], map: "movie_suggestions_status_suggested_at_idx")
+  @@index([userSubject, deletedAt, suggestedAt], map: "movie_suggestions_user_subject_deleted_at_suggested_at_idx")
   @@map("movie_suggestions")
 }
